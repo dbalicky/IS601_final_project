@@ -23,6 +23,9 @@ from sqlalchemy.orm import relationship, declared_attr
 from sqlalchemy.ext.declarative import declared_attr
 from app.database import Base
 
+# add for square root function
+import math
+
 class AbstractCalculation:
     """
     Abstract base class for calculations.
@@ -178,6 +181,7 @@ class AbstractCalculation:
             'subtraction': Subtraction,
             'multiplication': Multiplication,
             'division': Division,
+            'hypotenuse': Hypotenuse,
         }
         calculation_class = calculation_classes.get(calculation_type.lower())
         if not calculation_class:
@@ -354,3 +358,39 @@ class Division(Calculation):
                 raise ValueError("Cannot divide by zero.")
             result /= value
         return result
+
+# added new calculation
+class Hypotenuse(Calculation):
+    """
+    Hypotenuse calculation subclass.
+    
+    Finds the hypotenuse of a right triangle with two positive 
+    side lengths.
+
+    Examples:
+        [3, 4] -> sqrt(3^2 + 4^2) = 5
+        [2, 6] -> sqrt(2^2 + 6^2) = 6.32
+    """
+    __mapper_args__ = {"polymorphic_identity": "hypotenuse"}
+
+    def get_result(self) -> float:
+        """
+        Calculate the hypotenuse of a right triangle
+        
+        Returns:
+            float: The hypotenuse length
+            
+        Raises:
+            ValueError: If inputs are not a list, if there are not exactly
+                        two inputs, or if either input is zero or negative
+        """
+        if not isinstance(self.inputs, list):
+            raise ValueError("Inputs must be a list of numbers.")
+        
+        if len(self.inputs) != 2:
+            raise ValueError("Exactly two numbers are required to calculate hypotenuse.")
+
+        if any(value <= 0 for value in self.inputs):
+            raise ValueError("Side lengths must be greater than zero.")
+        
+        return round(math.sqrt(self.inputs[0] ** 2 + self.inputs[1] ** 2), 2)
