@@ -294,6 +294,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         result = inputs.reduce((a, b, i) => i === 0 ? a : a / b, inputs[0]);
         break;
+      case 'hypotenuse':
+        if (inputs.length !== 2) {
+          return 'Exactly two numbers required';
+        }
+        if (inputs.some(value => value <= 0)) {
+          return 'Side lengths must be greater than zero';
+        }
+        result = Math.round(
+          Math.sqrt(inputs[0] ** 2 + inputs[1] ** 2) * 100
+        ) / 100;
+        break;
       default:
         return 'Unknown operation';
     }
@@ -329,6 +340,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         break;
       case 'division':
         operator = '÷';
+        break;
+      case 'hypotenuse':
+        operator = ',';
         break;
       default:
         operator = '?';
@@ -400,6 +414,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Populate form fields
       calcTypeInput.value = calc.type;
       calcInputsInput.value = calc.inputs.join(', ');
+
+      // Update input help for Hypotenuse operation
+      if (calc.type === 'hypotenuse') {
+        calcInputsInput.placeholder = 'e.g. 3, 4';
+        document.getElementById('inputHelp').textContent =
+          'Enter exactly two positive side lengths separated by commas.';
+      }
       
       // Update the preview
       updatePreview();
@@ -462,6 +483,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (calcTypeInput.value === 'division' && newInputs.some((value, index) => index > 0 && value === 0)) {
       showError('Division by zero is not allowed.');
       return;
+    }
+
+    // Validate Hypotenuse inputs
+    if (calcTypeInput.value === 'hypotenuse') {
+      if (newInputs.length !== 2) {
+        showError('Exactly two numbers are required to calculate hypotenuse.');
+        return;
+      }
+
+      if (newInputs.some(value => value <= 0)) {
+        showError('Side lengths must be greater than zero.');
+        return;
+      }
     }
 
     // Show loading state on button
