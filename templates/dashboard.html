@@ -54,6 +54,7 @@
           <option value="subtraction">Subtraction</option>
           <option value="multiplication">Multiplication</option>
           <option value="division">Division</option>
+          <option value="hypotenuse">Hypotenuse</option>
         </select>
       </div>
       <!-- Inputs -->
@@ -184,6 +185,18 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // Validate input placeholder based on calculation type
+  const calcTypeSelect = document.getElementById('calcType');
+  const calcInputsField = document.getElementById('calcInputs');
+
+  calcTypeSelect.addEventListener('change', function() {
+    if (this.value === 'hypotenuse') {
+      calcInputsField.placeholder = 'e.g. 3, 4';
+    } else {
+      calcInputsField.placeholder = 'e.g. 5, 10, 15';
+    }
+  });
 
   // Alert helper functions
   function showError(msg) {
@@ -410,6 +423,8 @@ document.addEventListener('DOMContentLoaded', function() {
       .map(num => parseFloat(num.trim()))
       .filter(num => !isNaN(num));
 
+    const calcType = document.getElementById('calcType').value;
+
     if (inputs.length < 2) {
       showError('Please enter at least two valid numbers, separated by commas');
       
@@ -425,8 +440,20 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    if (calcType === 'hypotenuse') {
+      if (inputs.length !== 2) {
+        showError('Exactly two numbers are required to calculate hypotenuse.');
+        return;
+      }
+
+      if (inputs.some(num => num <= 0)) {
+        showError('Side lengths must be greater than zero.');
+        return;
+      }
+    }
+
     const newCalc = {
-      type: document.getElementById('calcType').value,
+      type: calcType,
       inputs
     };
 
@@ -460,6 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       showSuccess(`Calculation complete: ${result.result}`);
       form.reset();
+      calcInputsField.placeholder = 'e.g. 5, 10, 15';
       loadCalculations();
       
       // Add a highlight effect to the table to draw attention to the new entry
