@@ -20,6 +20,61 @@ def test_calculation_create_valid():
     assert calc.inputs == [10.5, 3.0]
     assert calc.user_id is not None
 
+def test_calculation_create_hypotenuse_valid():
+    """Test creating a valid hypotenuse CalculationCreate schema."""
+    data = {
+        "type": "hypotenuse",
+        "inputs": [2, 6],
+        "user_id": uuid4()
+    }
+
+    calc = CalculationCreate(**data)
+
+    assert calc.type == "hypotenuse"
+    assert calc.inputs == [2.0, 6.0]
+    assert calc.user_id is not None
+
+def test_calculation_create_hypotenuse_invalid_number_of_inputs():
+    """Test that hypotenuse requires exactly two inputs."""
+    data = {
+        "type": "hypotenuse",
+        "inputs": [3, 4, 5],
+        "user_id": uuid4()
+    }
+
+    with pytest.raises(ValidationError) as exc_info:
+        CalculationCreate(**data)
+
+    assert "exactly two numbers" in str(exc_info.value).lower()
+
+@pytest.mark.parametrize(
+    "inputs",
+    [
+        [0, 4],
+        [4, 0],
+        [-3, 4],
+        [3, -4],
+    ],
+    ids=[
+        "hypotenuse_zero_first_side",
+        "hypotenuse_zero_second_side",
+        "hypotenuse_negative_first_side",
+        "hypotenuse_negative_second_side",
+    ]
+)
+def test_calculation_create_hypotenuse_invalid_side_lengths(inputs):
+    """Test that hypotenuse side lengths must be greater than zero."""
+    data = {
+        "type": "hypotenuse",
+        "inputs": inputs,
+        "user_id": uuid4()
+    }
+
+    with pytest.raises(ValidationError) as exc_info:
+        CalculationCreate(**data)
+
+    assert "side lengths must be greater than zero" in str(exc_info.value).lower()
+
 def test_calculation_create_missing_type():
     """Test CalculationCreate fails if 'type' is missing."""
     data = {
