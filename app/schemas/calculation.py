@@ -36,6 +36,7 @@ class CalculationType(str, Enum):
     SUBTRACTION = "subtraction"
     MULTIPLICATION = "multiplication"
     DIVISION = "division"
+    HYPOTENUSE = "hypotenuse"
 
 class CalculationBase(BaseModel):
     """
@@ -49,7 +50,7 @@ class CalculationBase(BaseModel):
     """
     type: CalculationType = Field(
         ...,  # The ... means this field is required
-        description="Type of calculation (addition, subtraction, multiplication, division)",
+        description="Type of calculation (addition, subtraction, multiplication, division, hypotenuse)",
         example="addition"
     )
     inputs: List[float] = Field(
@@ -130,6 +131,15 @@ class CalculationBase(BaseModel):
             # Prevent division by zero (skip the first value as numerator)
             if any(x == 0 for x in self.inputs[1:]):
                 raise ValueError("Cannot divide by zero")
+
+        if self.type == CalculationType.HYPOTENUSE:
+            if len(self.inputs) != 2:
+                raise ValueError(
+                    "Exactly two numbers are required to calculate hypotenuse."
+                )
+            if any(x <= 0 for x in self.inputs):
+                raise ValueError("Side lengths must be greater than zero.")
+
         return self
 
     model_config = ConfigDict(
@@ -140,7 +150,8 @@ class CalculationBase(BaseModel):
         json_schema_extra={
             "examples": [
                 {"type": "addition", "inputs": [10.5, 3, 2]},
-                {"type": "division", "inputs": [100, 2]}
+                {"type": "division", "inputs": [100, 2]},
+                {"type": "hypotenuse", "inputs": [2, 6]}
             ]
         }
     )
