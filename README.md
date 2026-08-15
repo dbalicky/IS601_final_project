@@ -383,7 +383,7 @@ def test_hypotenuse_equal_or_less_than_zero(a: Number, b: Number) -> None:
         f"Expected error message 'Side lengths must be greater than zero.', but got '{excinfo.value}'"
 ```
 
-### Add code to opeartions/__init__.py in app directory
+### Add code to opertions/__init__.py in app directory
 
 **Add hypotenuse function**
 ```bash
@@ -437,7 +437,7 @@ def hypotenuse(*numbers):
 import math               # Import math to use sqrt function for hypotenuse opeartion
 ```
 
-## Add hypotenuse operation to dashboard tempalate
+### Implement hypotenuse operation in dashboard tempalate
 
 **Add Hypotenuse option on line 57**
 ```bash
@@ -517,4 +517,52 @@ if (this.value === 'hypotenuse') {
 **Change input placeholder back after form reset**
 ```bash
 calcInputsField.placeholder = 'e.g. 5, 10, 15';
+```
+
+### Implement hypotenuse operation in edit_calculation template
+
+**Add hypotenuse case to switch statement in calculatePreview function**
+```bash
+case 'hypotenuse':
+    if (inputs.length !== 2) {
+        return 'Exactly two numbers required';
+    }
+    if (inputs.some(value => value <= 0)) {
+        return 'Side lengths must be greater than zero';
+    }
+    result = Math.round(
+        Math.sqrt(inputs[0] ** 2 + inputs[1] ** 2) * 100
+    ) / 100;
+    break;
+```
+
+**Add hypotenuse case to operator switch in updatePreview function**
+```bash
+case 'hypotenuse':
+    operator = ',';
+    break;
+```
+
+**Change input help when Hypotenuse calculation loads**
+```bash
+if (calc.type === 'hypotenuse') {
+  calcInputsInput.placeholder = 'e.g. 3, 4';
+  document.getElementById('inputHelp').textContent =
+    'Enter exactly two positive side lengths separated by commas.';
+}
+```
+
+**Add validator for Hypotenuse inputs**
+```bash
+if (calcTypeInput.value === 'hypotenuse') {
+  if (newInputs.length !== 2) {
+    showError('Exactly two numbers are required to calculate hypotenuse.');
+    return;
+  }
+
+  if (newInputs.some(value => value <= 0)) {
+    showError('Side lengths must be greater than zero.');
+    return;
+  }
+}
 ```
