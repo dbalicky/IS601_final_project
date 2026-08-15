@@ -809,3 +809,59 @@ def test_model_hypotenuse():
         calc_invalid_inputs = Calculation.create("hypotenuse", dummy_user_id, [3, -1])
         calc_invalid_inputs.get_result()
 ```
+
+### Fix code in app/main.py
+
+**Update route handling error**
+
+Change:
+```bash
+if calculation_update.inputs is not None:
+    calculation.inputs = calculation_update.inputs
+    calculation.result = calculation.get_result()
+
+calculation.updated_at = datetime.utcnow()
+db.commit()
+db.refresh(calculation)
+return calculation
+```
+
+To:
+```bash
+try:
+    if calculation_update.inputs is not None:
+        calculation.inputs = calculation_update.inputs
+        calculation.result = calculation.get_result()
+
+    calculation.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(calculation)
+    return calculation
+
+except ValueError as e:
+    db.rollback()
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=str(e)
+    )
+```
+
+
+### Fix register template
+
+**Fix code if register response is not ok**
+```bash
+if (!response.ok) {
+    let errorMessage = 'Registration failed';
+
+    if (Array.isArray(data.detail)) {
+        errorMessage = data.detail
+            .map(error => error.msg)
+            .join(', ');
+    } else if (typeof data.detail === 'string') {
+        errorMessage = data.detail;
+    }
+
+    throw new Error(errorMessage);
+}
+```
