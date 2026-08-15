@@ -300,7 +300,7 @@ def create_calculation(
             calculation_type=calculation_data.type,
             user_id=current_user.id,
             inputs=calculation_data.inputs,
-        )
+        )   
         new_calculation.result = new_calculation.get_result()
 
         db.add(new_calculation)
@@ -377,14 +377,22 @@ def update_calculation(
     if not calculation:
         raise HTTPException(status_code=404, detail="Calculation not found.")
 
-    if calculation_update.inputs is not None:
-        calculation.inputs = calculation_update.inputs
-        calculation.result = calculation.get_result()
+    try:
+        if calculation_update.inputs is not None:
+            calculation.inputs = calculation_update.inputs
+            calculation.result = calculation.get_result()
 
-    calculation.updated_at = datetime.utcnow()
-    db.commit()
-    db.refresh(calculation)
-    return calculation
+        calculation.updated_at = datetime.utcnow()
+        db.commit()
+        db.refresh(calculation)
+        return calculation
+
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
 
 
 # Delete a Calculation
