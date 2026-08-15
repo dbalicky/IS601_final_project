@@ -2,7 +2,7 @@
 
 import pytest  # Import the pytest framework for writing and running tests
 from typing import Union  # Import Union for type hinting multiple possible types
-from app.operations import add, subtract, multiply, divide  # Import the calculator functions from the operations module
+from app.operations import add, subtract, multiply, divide, hypotenuse  # Import the calculator functions from the operations module
 
 # Define a type alias for numbers that can be either int or float
 Number = Union[int, float]
@@ -232,3 +232,138 @@ def test_divide_by_zero() -> None:
     # Assert that the exception message contains the expected error message
     assert "Cannot divide by zero!" in str(excinfo.value), \
         f"Expected error message 'Cannot divide by zero!', but got '{excinfo.value}'"
+
+
+# ---------------------------------------------
+# Unit Tests for the 'hypotenuse' Function
+# ---------------------------------------------
+
+@pytest.mark.parametrize(
+    "a, b, expected",
+    [
+        (3, 4, 5),           # Test hypotenuse with two integers
+        (2, 6, 6.32),           # Test hypotenuse with two integers reulsting with float
+        (3.5, 5.2, 6.27),    # Test hypotenuse with two floats
+        (4, 6.7, 7.8),       # Test hypotenuse with one integer and one float
+    ],
+    ids=[
+        "hypotenuse_two_integers",
+        "hypotenuse_two_integers_result_float"
+        "hypotenuse_two_floats",
+        "hypotenuse_one_integer_one_float",
+    ]
+)
+def test_hypotenuse(a: Number, b: Number, expected: float) -> None:
+    """
+    Test the 'hypotenuse' operation with different combinations of integers and floats.
+
+    This parameterized test verifies that the 'hypotenuse' function correctly finds the
+    hypotenuse of a right triangle based on the two side lengths provided. It handles
+    positive integers and floats. Parameterization allows for efficient and comprehensive 
+    testing across multiple cases.
+
+    Parameters:
+    - a (Number): First side.
+    - b (Number): Second side.
+    - expected (float): The expected hypotenuse.
+
+    Steps:
+    1. Call the 'hypotenuse' function with arguments 'a' and 'b'.
+    2. Assert that the result is equal to 'expected'.
+
+    Example:
+    >>> test_hypotenuse(2, 6, 6.32)
+    >>> test_hypotenuse(4, 6.7, 7.8)
+    """
+    # Call the 'hypotenuse' function with the provided arguments
+    result = hypotenuse(a, b)
+    
+    # Assert that the result of hypotenuse(a, b) matches the expected value
+    assert result == expected, f"Expected hypotenuse({a}, {b}) to be {expected}, but got {result}"
+
+# ---------------------------------------------
+# Invalid Test Case: Incorrect number of inputs
+# ---------------------------------------------
+
+@pytest.mark.parametrize(
+    "numbers",
+    [
+        (3,),
+        (3, 4, 5),
+    ],
+    ids=[
+        "hypotenuse_too_few_numbers",
+        "hypotenuse_too_many_numbers",
+    ]
+)
+def test_hypotenuse_invalid_number_of_inputs(numbers) -> None:
+    """
+    Test the 'hypotenuse' function with more than two numbers
+
+    This test case verifies that inputs with an incorrect number of inputs
+    raises a ValueError. It ensures that the application correctly handles
+    invalid operations and provides meaningful feedback to the user.
+
+    Steps:
+    1. Attempt to call the 'hypotenuse' function with with an incorrect number of inputs, which should raise a ValueError.
+    2. Use pytest's 'raises' context manager to catch the expected exception.
+    3. Assert that the error message contains "Exactly two numbers are required to calculate hypotenuse.".
+
+    Example:
+    >>> test_hypotenuse_invalid_number_of_inputs()
+    """
+    # Use pytest's context manager to check for a ValueError when given an incorrect number of inputs
+    with pytest.raises(ValueError) as excinfo:
+        # Attempt to calculate hypotenuse with an incorrect number of inputs, which should raise ValueError
+        hypotenuse(*numbers)
+    
+    # Assert that the exception message contains the expected error message
+    assert "Exactly two numbers are required to calculate hypotenuse." in str(excinfo.value), \
+        f"Expected error message 'Exactly two numbers are required to calculate hypotenuse.', but got '{excinfo.value}'"
+
+# ---------------------------------------------
+# Invalid Test Case: Number less than or equal to 0
+# ---------------------------------------------
+@pytest.mark.parametrize(
+    "a, b",
+    [
+        (0, 4),
+        (4, 0),
+        (-3, 4),
+        (3, -4),
+        (-3, -4),
+        (0, 0),
+    ],
+    ids=[
+        "hypotenuse_zero_first_side",
+        "hypotenuse_zero_second_side",
+        "hypotenuse_negative_first_side",
+        "hypotenuse_negative_second_side",
+        "hypotenuse_both_negative",
+        "hypotenuse_both_zero",
+    ]
+)
+def test_hypotenuse_equal_or_less_than_zero(a: Number, b: Number) -> None:
+    """
+    Test the 'hypotenuse' function with a number less than one.
+
+    This test case verifies that an input with any number less than or equal to zero raises a ValueError
+    with the appropriate error message. It ensures that the application correctly handles
+    invalid operations and provides meaningful feedback to the user.
+
+    Steps:
+    1. Attempt to call the 'hypotenuse' function with arguments 0 and 4, which should raise a ValueError.
+    2. Use pytest's 'raises' context manager to catch the expected exception.
+    3. Assert that the error message contains "Side lengths must be greater than zero.".
+
+    Example:
+    >>> test_hypotenuse_equal_or_less_than_zero()
+    """
+    # Use pytest's context manager to check for a ValueError when given a number equal to or less than 0
+    with pytest.raises(ValueError) as excinfo:
+        # Attempt to calculate hypotenuse with 0 and 4, which should raise ValueError
+        hypotenuse(a, b)
+    
+    # Assert that the exception message contains the expected error message
+    assert "Side lengths must be greater than zero." in str(excinfo.value), \
+        f"Expected error message 'Side lengths must be greater than zero.', but got '{excinfo.value}'"
