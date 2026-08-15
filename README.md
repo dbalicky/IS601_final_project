@@ -566,3 +566,13 @@ if (calcTypeInput.value === 'hypotenuse') {
   }
 }
 ```
+
+### Implement hypotenuse operation in view_calculation template
+
+**Add hypotenuse caste for operator type switch in createCalculationVisual function**
+```bash
+case 'hypotenuse':
+    opreator = ',';
+    break;
+```
+
