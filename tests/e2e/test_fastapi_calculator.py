@@ -229,6 +229,61 @@ def test_create_calculation_division(base_url: str):
     # Expected result: 100 / 2 / 5 = 10
     assert "result" in data and data["result"] == 10, f"Expected result 10, got {data.get('result')}"
 
+def test_create_calculation_hypotenuse(base_url: str):
+    user_data = {
+        "first_name": "Calc",
+        "last_name": "Hypotenuse",
+        "email": f"calc.hyp{uuid4()}@example.com",
+        "username": f"calc_hyp_{uuid4()}",
+        "password": "SecurePass123!",
+        "confirm_password": "SecurePass123!"
+    }
+
+    token_data = register_and_login(base_url, user_data)
+    access_token = token_data["access_token"]
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    url = f"{base_url}/calculations"
+    payload = {
+        "type": "hypotenuse",
+        "inputs": [2, 6],
+        "user_id": "ignored"
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+
+    assert response.status_code == 201
+    data = response.json()
+
+    assert data["type"] == "hypotenuse"
+    assert data["inputs"] == [2.0, 6.0]
+    assert data["result"] == 6.32
+
+def test_create_calculation_hypotenuse_invalid_inputs(base_url: str):
+    user_data = {
+        "first_name": "Calc",
+        "last_name": "HypInvalid",
+        "email": f"calc.hypinv{uuid4()}@example.com",
+        "username": f"calc_hypinv_{uuid4()}",
+        "password": "SecurePass123!",
+        "confirm_password": "SecurePass123!"
+    }
+
+    token_data = register_and_login(base_url, user_data)
+    access_token = token_data["access_token"]
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    url = f"{base_url}/calculations"
+    payload = {
+        "type": "hypotenuse",
+        "inputs": [0, 4],
+        "user_id": "ignored"
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+
+    assert response.status_code in (400, 422)
+
 def test_list_get_update_delete_calculation(base_url: str):
     user_data = {
         "first_name": "Calc",
@@ -318,3 +373,19 @@ def test_model_division():
     with pytest.raises(ValueError):
         calc_zero = Calculation.create("division", dummy_user_id, [100, 0])
         calc_zero.get_result()
+
+def test_model_hypotenuse():
+    dummy_user_id = uuid4()
+    calc = Calculation.create("hypotenuse", dummy_user_id, [2, 6])
+    result = calc.get_result()
+    assert result == 6.32, f"Hypotenuse result incorrect: expected 6.32, got {result}"
+
+    # Test hypotenuse with invalid number of inputs
+    with pytest.raises(ValueError):
+        calc_invalid_input_amount = Calculation.create("hypotenuse", dummy_user_id, [2, 4, 5])
+        calc_invalid_input_amount.get_result()
+
+    # Test hypotenuse with invalid inputs (less than or equal to zero)
+    with pytest.raises(ValueError):
+        calc_invalid_inputs = Calculation.create("hypotenuse", dummy_user_id, [3, -1])
+        calc_invalid_inputs.get_result()
