@@ -436,3 +436,85 @@ def hypotenuse(*numbers):
 ```bash
 import math               # Import math to use sqrt function for hypotenuse opeartion
 ```
+
+## Add hypotenuse operation to dashboard tempalate
+
+**Add Hypotenuse option on line 57**
+```bash
+<option value="hypotenuse">Hypotenuse</option>
+```
+
+**Add Hypotenuse number of input check**
+
+After
+```bash
+const inputsVal = document.getElementById('calcInputs').value;
+const inputs = inputsVal.split(',')
+  .map(num => parseFloat(num.trim()))
+  .filter(num => !isNaN(num));
+```
+
+Add
+```bash
+const calcType = document.getElementById('calcType').value;
+```
+
+After
+```bash
+if (inputs.length < 2) {
+    showError('Please enter at least two valid numbers, separated by commas');
+    
+    // Highlight the input field with an error state
+    const inputField = document.getElementById('calcInputs');
+    inputField.classList.add('border-red-500');
+    inputField.focus();
+    
+    // Remove error highlight after 3 seconds or when user types
+    setTimeout(() => inputField.classList.remove('border-red-500'), 3000);
+    inputField.addEventListener('input', () => inputField.classList.remove('border-red-500'), { once: true });
+    
+    return;
+}
+```
+
+Add
+```bash
+if (calcType === 'hypotenuse') {
+    if (inputs.length !== 2) {
+        showError('Exactly two numbers are required to calculate hypotenuse.');
+        return;
+    }
+
+    if (inputs.some(num => num <= 0)) {
+        showError('Side lengths must be greater than zero.');
+        return;
+    }
+}
+```
+
+**Simplify newCalc type**
+```bash
+const newCalc = {
+    type: calcType,
+    inputs
+};
+```
+
+**Add dynamic placeholder for hypotenuse calculation inside DOMContentLoaded event listener**
+```bash
+const calcTypeSelect = document.getElementById('calcType');
+const calcInputsField = document.getElementById('calcInputs');
+
+calcTypeSelect.addEventListener('change', function() {
+if (this.value === 'hypotenuse') {
+    calcInputsField.placeholder = 'e.g. 3, 4';
+} else {
+    calcInputsField.placeholder = 'e.g. 5, 10, 15';
+}
+});
+```
+
+**Change input placeholder back after form reset**
+```bash
+calcInputsField.placeholder = 'e.g. 5, 10, 15';
+```
