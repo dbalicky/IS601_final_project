@@ -256,7 +256,7 @@ from app.operations import add, subtract, multiply, divide, hypotenuse  # Import
     ],
     ids=[
         "hypotenuse_two_integers",
-        "hypotenuse_two_integers_result_float"
+        "hypotenuse_two_integers_result_float",
         "hypotenuse_two_floats",
         "hypotenuse_one_integer_one_float",
     ]
@@ -381,4 +381,58 @@ def test_hypotenuse_equal_or_less_than_zero(a: Number, b: Number) -> None:
     # Assert that the exception message contains the expected error message
     assert "Side lengths must be greater than zero." in str(excinfo.value), \
         f"Expected error message 'Side lengths must be greater than zero.', but got '{excinfo.value}'"
+```
+
+### Add code to opeartions/__init__.py in app directory
+
+**Add hypotenuse function**
+```bash
+def hypotenuse(*numbers):
+    """
+    Find the hypotenuse given two sides.
+    
+    Parameters:
+    - *numbers: Exactly two numbers which represent the side lengths.
+    
+    Returns:
+    - float: The hypotenuse rounded to two decimal places.
+
+    Raises:
+    - ValueError: If there are not exactly two inputs, or if
+                  any input is less than or equal to zero.
+
+    Examples:
+    >>> hypotenuse(3, 4)
+    5.0
+    >>> hypotenuse(2, 6)
+    6.32
+    >>> hypotenuse(2, 3, 4)
+    Traceback (most recent call last):
+        ...
+    ValueError: Exactly two numbers are required to calculate hypotenuse.
+    >>> hypotenuse(0, 5)
+        Traceback (most recent call last):
+            ...
+        ValueError: Side lengths must be greater than zero.
+    """
+    # Check if there are exactly two inputs
+    if len(numbers) != 2:
+        raise ValueError(
+            "Exactly two numbers are required to calculate hypotenuse."
+        )
+    # Check if both inputs are greater than zero
+    if any(number <= 0 for number in numbers):
+        raise ValueError("Side lengths must be greater than zero.")
+
+    # Find the hypotenuse of the two side lenghts
+    result = round(
+        math.sqrt(numbers[0] ** 2 + numbers[1] ** 2),
+        2
+    )
+    return result
+```
+
+**Import math near top of code**
+```bash
+import math               # Import math to use sqrt function for hypotenuse opeartion
 ```
