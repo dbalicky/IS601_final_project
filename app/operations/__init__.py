@@ -19,6 +19,7 @@ to perform arithmetic operations based on user input.
 """
 
 from typing import Union  # Import Union for type hinting multiple possible types
+import math               # Import math to use sqrt function for hypotenuse opeartion
 
 # Define a type alias for numbers that can be either int or float
 Number = Union[int, float]
@@ -117,4 +118,48 @@ def divide(a: Number, b: Number) -> float:
     
     # Perform division of a by b and return the result as a float
     result = a / b
+    return result
+
+def hypotenuse(*numbers):
+    """
+    Find the hypotenuse given two sides.
+    
+    Parameters:
+    - *numbers: Exactly two numbers which represent the side lengths.
+    
+    Returns:
+    - float: The hypotenuse rounded to two decimal places.
+
+    Raises:
+    - ValueError: If there are not exactly two inputs, or if
+                  any input is less than or equal to zero.
+
+    Examples:
+    >>> hypotenuse(3, 4)
+    5.0
+    >>> hypotenuse(2, 6)
+    6.32
+    >>> hypotenuse(2, 3, 4)
+    Traceback (most recent call last):
+        ...
+    ValueError: Exactly two numbers are required to calculate hypotenuse.
+    >>> hypotenuse(0, 5)
+        Traceback (most recent call last):
+            ...
+        ValueError: Side lengths must be greater than zero.
+    """
+    # Check if there are exactly two inputs
+    if len(numbers) != 2:
+        raise ValueError(
+            "Exactly two numbers are required to calculate hypotenuse."
+        )
+    # Check if both inputs are greater than zero
+    if any(number <= 0 for number in numbers):
+        raise ValueError("Side lengths must be greater than zero.")
+
+    # Find the hypotenuse of the two side lenghts
+    result = round(
+        math.sqrt(numbers[0] ** 2 + numbers[1] ** 2),
+        2
+    )
     return result
