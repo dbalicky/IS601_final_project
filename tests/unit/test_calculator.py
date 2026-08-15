@@ -248,7 +248,7 @@ def test_divide_by_zero() -> None:
     ],
     ids=[
         "hypotenuse_two_integers",
-        "hypotenuse_two_integers_result_float"
+        "hypotenuse_two_integers_result_float",
         "hypotenuse_two_floats",
         "hypotenuse_one_integer_one_float",
     ]
