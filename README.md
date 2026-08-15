@@ -1,3 +1,6 @@
+# Docker link
+https://hub.docker.com/repository/docker/dbal7/is601_final_project/general
+
 # Final Project Setup
 
 ## Creating directory 
@@ -864,4 +867,14 @@ if (!response.ok) {
 
     throw new Error(errorMessage);
 }
+```
+
+## Tag and push to Docker
+
+After test have ran successfuly and page has been tested
+
+```bash
+docker tag final_project-web:latest dbal7/is601_final_project:latest
+
+docker push dbal7/is601_final_project:latest
 ```
