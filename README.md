@@ -576,3 +576,154 @@ case 'hypotenuse':
     break;
 ```
 
+### Add integration test for hypotenuse in test_calculation_schema
+
+**Add test function for creating valid hypotenuse CalculationCreate schema**
+```bash
+def test_calculation_create_hypotenuse_valid():
+    """Test creating a valid hypotenuse CalculationCreate schema."""
+    data = {
+        "type": "hypotenuse",
+        "inputs": [2, 6],
+        "user_id": uuid4()
+    }
+
+    calc = CalculationCreate(**data)
+
+    assert calc.type == "hypotenuse"
+    assert calc.inputs == [2.0, 6.0]
+    assert calc.user_id is not None
+```
+
+**Add test function for hypotenuse CalculationCreate schema with invalid inputs**
+```bash
+def test_calculation_create_hypotenuse_invalid_number_of_inputs():
+    """Test that hypotenuse requires exactly two inputs."""
+    data = {
+        "type": "hypotenuse",
+        "inputs": [3, 4, 5],
+        "user_id": uuid4()
+    }
+
+    with pytest.raises(ValidationError) as exc_info:
+        CalculationCreate(**data)
+
+    assert "exactly two numbers" in str(exc_info.value).lower()
+```
+
+**Add parameterized test function for hypotenuse CalculationCreate schema with invalid side lengths**
+```bash
+@pytest.mark.parametrize(
+    "inputs",
+    [
+        [0, 4],
+        [4, 0],
+        [-3, 4],
+        [3, -4],
+    ],
+    ids=[
+        "hypotenuse_zero_first_side",
+        "hypotenuse_zero_second_side",
+        "hypotenuse_negative_first_side",
+        "hypotenuse_negative_second_side",
+    ]
+)
+def test_calculation_create_hypotenuse_invalid_side_lengths(inputs):
+    """Test that hypotenuse side lengths must be greater than zero."""
+    data = {
+        "type": "hypotenuse",
+        "inputs": inputs,
+        "user_id": uuid4()
+    }
+
+    with pytest.raises(ValidationError) as exc_info:
+        CalculationCreate(**data)
+
+    assert "side lengths must be greater than zero" in str(exc_info.value).lower()
+```
+
+### Add integration tests for hypotenuse in test_calculation
+
+**Import Hypotenuse operation from app.models.calculation**
+
+```bash
+from app.models.calculation import (
+    Calculation,
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    Hypotenuse,
+)
+```
+
+**Add test for getting result from hypotenuse operation**
+```bash
+def test_hypotenuse_get_result():
+    """
+    Test that Hypotenuse.get_result returns the correct hypotenuse.
+    """
+    inputs = [2, 6]
+    hypotenuse = Hypotenuse(user_id=dummy_user_id(), inputs=inputs)
+
+    result = hypotenuse.get_result()
+
+    assert result == 6.32, f"Expected 6.32, got {result}"
+```
+
+**Add factory test for hypotenuse operation**
+```bash
+def test_calculation_factory_hypotenuse():
+    """
+    Test the Calculation.create factory method for hypotenuse.
+    """
+    inputs = [3, 4]
+
+    calc = Calculation.create(
+        calculation_type='hypotenuse',
+        user_id=dummy_user_id(),
+        inputs=inputs,
+    )
+
+    assert isinstance(calc, Hypotenuse), \
+        "Factory did not return a Hypotenuse instance."
+
+    assert calc.get_result() == 5, \
+        "Incorrect hypotenuse result."
+```
+
+**Add invalid inalid input test for hypotenuse operation**
+```bash
+def test_invalid_inputs_for_hypotenuse():
+    """
+    Test that invalid side lengths raise a ValueError.
+    """
+    hypotenuse = Hypotenuse(
+        user_id=dummy_user_id(),
+        inputs=[0, 4]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Side lengths must be greater than zero."
+    ):
+        hypotenuse.get_result()
+```
+
+**Add invalid number of inputs test for hypotenuse opeartion**
+```bash
+def test_invalid_number_of_inputs_for_hypotenuse():
+    """
+    Test that Hypotenuse requires exactly two inputs.
+    """
+    hypotenuse = Hypotenuse(
+        user_id=dummy_user_id(),
+        inputs=[3, 4, 5]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Exactly two numbers are required to calculate hypotenuse."
+    ):
+        hypotenuse.get_result()
+```
