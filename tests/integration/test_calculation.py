@@ -7,6 +7,7 @@ from app.models.calculation import (
     Subtraction,
     Multiplication,
     Division,
+    Hypotenuse,
 )
 
 # Helper function to create a dummy user_id for testing.
@@ -150,3 +151,62 @@ def test_invalid_inputs_for_division():
     division = Division(user_id=dummy_user_id(), inputs=[10])
     with pytest.raises(ValueError, match="Inputs must be a list with at least two numbers."):
         division.get_result()
+
+def test_hypotenuse_get_result():
+    """
+    Test that Hypotenuse.get_result returns the correct hypotenuse.
+    """
+    inputs = [2, 6]
+    hypotenuse = Hypotenuse(user_id=dummy_user_id(), inputs=inputs)
+
+    result = hypotenuse.get_result()
+
+    assert result == 6.32, f"Expected 6.32, got {result}"
+
+def test_calculation_factory_hypotenuse():
+    """
+    Test the Calculation.create factory method for hypotenuse.
+    """
+    inputs = [3, 4]
+
+    calc = Calculation.create(
+        calculation_type='hypotenuse',
+        user_id=dummy_user_id(),
+        inputs=inputs,
+    )
+
+    assert isinstance(calc, Hypotenuse), \
+        "Factory did not return a Hypotenuse instance."
+
+    assert calc.get_result() == 5, \
+        "Incorrect hypotenuse result."
+
+def test_invalid_inputs_for_hypotenuse():
+    """
+    Test that invalid side lengths raise a ValueError.
+    """
+    hypotenuse = Hypotenuse(
+        user_id=dummy_user_id(),
+        inputs=[0, 4]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Side lengths must be greater than zero."
+    ):
+        hypotenuse.get_result()
+
+def test_invalid_number_of_inputs_for_hypotenuse():
+    """
+    Test that Hypotenuse requires exactly two inputs.
+    """
+    hypotenuse = Hypotenuse(
+        user_id=dummy_user_id(),
+        inputs=[3, 4, 5]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Exactly two numbers are required to calculate hypotenuse."
+    ):
+        hypotenuse.get_result()
